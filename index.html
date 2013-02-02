@@ -6,17 +6,61 @@
  	<title>PurpleCarrot</title>
  	<link rel="stylesheet" type="text/css" href="css/desktop-style.css" />
  	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script src="js/leaflet.js"></script>
  </head>
  <body>
  	<div id="wrapper">
  		<div id="header">
  		</div>
- 
+
  		<div id="body">
+			<div id="map" style="width: 100%; height: 600px"></div>
+			<script>
+				var map = L.map('map').setView([43.6481, -79.4042], 13);
+				L.tileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png', {
+					maxZoom: 18,
+					attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+				}).addTo(map);
+				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+					attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				}).addTo(map);
+				/*L.marker([43.6481, -79.4042]).addTo(map)
+					.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();*/
+				L.circle([43.6481, -79.4042], 500, {
+					color: 'red',
+					fillColor: '#f03',
+					fillOpacity: 0.5
+				}).addTo(map).bindPopup("I am a circle.");
+				/*L.polygon([
+					[43.6481, -79.41],
+					[43.6485, -79.4],
+					[43.66, -79.4042]
+				]).addTo(map).bindPopup("I am a polygon.");*/
+				var popup = L.popup();
+				function onMapClick(e) {
+					popup
+						.setLatLng(e.latlng)
+						.setContent("You clicked the map at " + e.latlng.toString())
+						.openOn(map);
+				}
+				map.on('click', onMapClick);
+				var info = L.control();
+				info.onAdd = function (map) {
+					this._div = L.DomUtil.create('div', 'info');
+					this.update();
+					return this._div;
+				};
+				info.update = function (props) {
+					this._div.innerHTML = '<h4>This is an updating attribute (with data that is not on this map: US Population Density</h4>' +  (props ?
+						'<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+						: 'Hover over a state');
+				};
+				info.addTo(map);
+			</script>
  		</div>
- 
+
  		<div id="footer">
- 		</div> 
+ 		</div>
  	</div>
  </body>
  <script type="text/javascript" src="js/jscript.js"></script>

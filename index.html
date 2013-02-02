@@ -42,6 +42,15 @@
 						.setLatLng(e.latlng)
 						.setContent("You clicked the map at " + e.latlng.toString())
 						.openOn(map);
+						info.update(e);
+						myCircle.setLatLng(e.latlng);
+						$.each(markers, function(i, item){
+						if (Math.abs(item.getLatLng().lat - e.latlng.lat) < 10)
+						{
+							item.openPopup();
+							console.log(item.getLatLng().lat);
+						}
+				});
 				}
 				map.on('click', onMapClick);
 				var info = L.control();
@@ -51,11 +60,32 @@
 					return this._div;
 				};
 				info.update = function (props) {
-					this._div.innerHTML = '<h4>This is an updating attribute (with data that is not on this map: US Population Density</h4>' +  (props ?
-						'<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-						: 'Hover over a state');
+					console.log(props);
+					this._div.innerHTML = '<h4>You clicked at:</h4>' +  (props ?
+						'<b>' + props.latlng + '</b>'
+						: 'Click somewhere');
 				};
 				info.addTo(map);
+
+				var myIcon = L.icon({
+					iconUrl: 'img/marker-icon',
+					iconRetinaUrl: 'img/marker-icon@2x.png',
+					iconSize: [25, 41],
+					iconAnchor: [22, 94],
+					popupAnchor: [-3, -76],
+					shadowUrl: 'img/marker-shadow.png',
+					shadowRetinaUrl: 'img/marker-shadow@2x.png',
+					shadowSize: [21, 21],
+					shadowAnchor: [22, 94]
+				});
+
+				var markers = new Array();
+				$.each(carparks.carparks, function(i,item){
+				var aMarker = L.marker([item.lat, item.lng], {icon: myIcon}).addTo(map)
+					.bindPopup("<b>"+item.address+"</b><br />" + item.rate).openPopup();
+					//console.log(item.rate);
+					markers.push(aMarker);
+				});
 			</script>
  		</div>
 

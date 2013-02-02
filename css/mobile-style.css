@@ -1,0 +1,11 @@
+/* thingy mobile style.css */ /* Page Reset
+ **************************************/
+ .wide, .three_quarter, .half, .quarter, .third, .two_third, .desktop{
+ 	width: 99%;
+ 	float: left;
+ 	margin: 0 0 1% 0;
+ } 
+
+ .mhide{
+ 	display: none;
+ }

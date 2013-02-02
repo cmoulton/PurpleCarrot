@@ -43,19 +43,12 @@
 				]).addTo(map).bindPopup("I am a polygon.");*/
 				var popup = L.popup();
 				function onMapClick(e) {
-					popup
+					/*popup
 						.setLatLng(e.latlng)
 						.setContent("You clicked the map at " + e.latlng.toString())
-						.openOn(map);
-						info.update(e);
-						myCircle.setLatLng(e.latlng);
-						$.each(markers, function(i, item){
-						if (Math.abs(item.getLatLng().lat - e.latlng.lat) < 10)
-						{
-							item.openPopup();
-							console.log(item.getLatLng().lat);
-						}
-				});
+						.openOn(map);*/
+					info.update(e);
+					myCircle.setLatLng(e.latlng);
 				}
 				map.on('click', onMapClick);
 				var info = L.control();
@@ -64,11 +57,51 @@
 					this.update();
 					return this._div;
 				};
-				info.update = function (props) {
-					console.log(props);
-					this._div.innerHTML = '<h4>You clicked at:</h4>' +  (props ?
-						'<b>' + props.latlng + '</b>'
-						: 'Click somewhere');
+
+				function distance(lat1, lon1, lat2, lon2) {
+					var radlat1 = Math.PI * lat1/180;
+					var radlat2 = Math.PI * lat2/180;
+					var radlon1 = Math.PI * lon1/180;
+					var radlon2 = Math.PI * lon2/180;
+					var theta = lon1-lon2;
+					var radtheta = Math.PI * theta/180;
+					var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+					dist = Math.acos(dist);
+					dist = dist * 180/Math.PI;
+					dist = dist * 60 * 1.1515;
+					dist = dist * 1.609344; // km
+					return dist;
+				}
+
+				info.update = function (e) {
+					if (markers != undefined)
+					{
+						var closeMarkers = new Array;
+						console.log("looking for close markers...");
+						$.each(markers, function(i, item){
+						if (distance(item.getLatLng().lat, item.getLatLng().lng, e.latlng.lat, e.latlng.lng) < 1.0)
+							{
+								console.log("close " + item.getLatLng().lat);
+								item.opacity = 1.0;
+								closeMarkers.push(item);
+							}
+							else
+							{
+								console.log("far " + item.getLatLng().lat);
+								item.opacity = 0.5;
+							}
+						});
+						var htmlString = '<h4>You clicked at:</h4>' +  (e ?
+							'<b>' + e.latlng + '</b>'
+							: 'Click somewhere');
+						if (closeMarkers.length > 0)
+						{
+							$.each(closeMarkers, function(i, item){
+								htmlString = htmlString + '<br/>' + item.title;
+							});
+						}
+						this._div.innerHTML = htmlString;
+					}
 				};
 				info.addTo(map);
 
@@ -85,9 +118,10 @@
 				});
 
 				var markers = new Array();
-				$.each(carparks.carparks, function(i,item){
+				$.each(parkingData.carparks, function(i,item){
 				var aMarker = L.marker([item.lat, item.lng], {icon: myIcon}).addTo(map)
-					.bindPopup("<b>"+item.address+"</b><br />" + item.rate).openPopup();
+					.bindPopup("<b>"+item.address+"</b><br />" + item.rate);
+					aMarker.title = item.address + ": " + item.rate;
 					//console.log(item.rate);
 					markers.push(aMarker);
 				});
